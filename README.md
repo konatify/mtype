@@ -8,7 +8,7 @@
 [![Monkeytype](https://img.shields.io/badge/MT%20FAN%20PROJECT-E2B714?style=for-the-badge&logo=monkeytype&logoColor=white)](https://monkeytype.com)
 
 # About
-Create easy link-shorteners for Monkeytype profiles. E.g. ```mtype.mtgoals.cc/miodec```
+Create easy link-shorteners for Monkeytype profiles. E.g. ```mtype.cc/miodec```
 
 # Data Management
 We don't take any data from you, including your personal information such as legal name, house address, credit card numbers, etc... Monkeytype Goals is a website designed to help users track goals for the typing test website Monkeytype, so it would be quite pointless to add tracking
