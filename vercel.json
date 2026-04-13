@@ -4,5 +4,32 @@
       "source": "/:slug",
       "destination": "/api/[slug]"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/pages/apekey",
+      "destination": "https://monkeytype.com/account-settings?tab=apeKeys",
+      "permanent": false
+    },
+    {
+      "source": "/pages/apekeys",
+      "destination": "https://monkeytype.com/account-settings?tab=apeKeys",
+      "permanent": false
+    },
+    {
+      "source": "/pages/about",
+      "destination": "https://monkeytype.com/about/",
+      "permanent": false
+    },
+    {
+      "source": "/pages/profile",
+      "destination": "https://monkeytype.com/account",
+      "permanent": false
+    },
+    {
+      "source": "/pages/api",
+      "destination": "https://api.monkeytype.com/",
+      "permanent": false
+    }
   ]
 }
