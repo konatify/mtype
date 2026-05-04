@@ -9,6 +9,8 @@
 
 # About
 Create easy link-shorteners for Monkeytype profiles. E.g. ```mtype.cc/miodec```
+<br />
+Or, use an option inspired by zws.im that creates the link-shorteners invisible! (It'll just appear as ```mtype.cc/```!)
 
 # Data Management
 We don't take any data from you, including your personal information such as legal name, house address, credit card numbers, etc... mtype is a website designed to to create link shorteners for Monkeytype profiles. Adding tracking is quite pointless, and we don't care about your VPN set to Tel Aviv.
