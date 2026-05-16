@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Badge — mtype</title>
+<link rel="icon" type="image/png" href="/images/mtype.png">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #313338;
+    --bg-light: #3a3d42;
+    --bg-lighter: #43464c;
+    --accent: #e2b714;
+    --white: #ffffff;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Roboto Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: rgba(49,51,56,0.95);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-left { display: flex; gap: 0.25rem; }
+  .nav-right { display: flex; gap: 0.25rem; }
+
+  nav a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  nav a:hover {
+    color: var(--white);
+    background: rgba(255,255,255,0.06);
+  }
+
+  nav a.active { color: var(--accent); }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 5rem;
+    width: 100%;
+  }
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    gap: 0.4rem;
+  }
+
+  .title-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+
+  .title {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    display: inline-block;
+  }
+
+  .title-underline {
+    display: block;
+    height: 3px;
+    margin-top: 6px;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) 40%, transparent 100%);
+    border-radius: 2px;
+    width: 100%;
+  }
+
+  .page-subtitle {
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .content {
+    width: 100%;
+    max-width: 540px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .section-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--bg-light);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .input-wrap:focus-within {
+    border-color: rgba(226,183,20,0.5);
+  }
+
+  .input-prefix {
+    padding: 10px 0 10px 14px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.25);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .username-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    padding: 10px 14px 10px 2px;
+    caret-color: var(--accent);
+    min-width: 0;
+  }
+
+  .username-input::placeholder { color: rgba(255,255,255,0.22); }
+
+  /* Preview card */
+  .preview-card {
+    background: var(--bg-light);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .preview-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1e1f22;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 1.5rem;
+    min-height: 80px;
+  }
+
+  .preview-stage {
+    background-image:
+      linear-gradient(45deg, #2a2b2e 25%, transparent 25%),
+      linear-gradient(-45deg, #2a2b2e 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #2a2b2e 75%),
+      linear-gradient(-45deg, transparent 75%, #2a2b2e 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+    background-color: #222326;
+  }
+
+  #badgePreview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  #badgeImg {
+    display: none;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  .preview-placeholder {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    text-align: center;
+  }
+
+  .preview-link {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+  }
+
+  .preview-link a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .snippet-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .snippet-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lang-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 9px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.04em;
+  }
+
+  .snippet-row {
+    display: flex;
+    align-items: stretch;
+    background: #1e1f22;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .snippet-code {
+    flex: 1;
+    padding: 10px 14px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+    min-width: 0;
+  }
+
+  .snippet-copy {
+    background: transparent;
+    border: none;
+    border-left: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.35);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    padding: 0 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .snippet-copy:hover {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.7);
+  }
+
+  .snippet-copy.copied {
+    color: var(--accent);
+  }
+
+  .snippet-copy svg { width: 12px; height: 12px; }
+
+  .info-note {
+    background: rgba(226,183,20,0.06);
+    border: 1px solid rgba(226,183,20,0.15);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.7;
+  }
+
+  .info-note strong {
+    color: rgba(226,183,20,0.8);
+    font-weight: 500;
+  }
+
+  .spin { animation: spin 0.8s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/">Home</a>
+    <a href="https://mtgoals.cc" target="_blank">Monkeytype Goals</a>
+    <a href="/list">My Links</a>
+  </div>
+  <div class="nav-right">
+    <a href="https://github.com/kiirod/mtype" target="_blank">GitHub</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="title-wrap">
+      <span class="title">badge</span>
+      <span class="title-underline"></span>
+    </div>
+    <p class="page-subtitle">
+      A badge for your GitHub README.<br>Shows your username and best WPM, live.
+    </p>
+  </div>
+
+  <div class="content">
+
+    <div>
+      <div class="section-label">Your Monkeytype username</div>
+      <div class="input-wrap">
+        <span class="input-prefix">mtype.cc/badge/</span>
+        <input
+          class="username-input"
+          id="usernameInput"
+          type="text"
+          placeholder="miodec"
+          maxlength="16"
+          autocomplete="off"
+          spellcheck="false"
+          oninput="onInput()"
+        />
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <div class="section-label">Preview</div>
+      <div class="preview-stage">
+        <div id="badgePreview">
+          <span class="preview-placeholder">Type your username above to preview</span>
+        </div>
+      </div>
+      <div class="preview-link" id="previewLink" style="display:none">
+        Live URL: <a id="badgeUrl" href="#" target="_blank"></a>
+      </div>
+    </div>
+
+    <div id="snippetsSection" style="display:none">
+      <div class="section-label" style="margin-bottom:0.75rem">Embed code</div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem">
+
+        <div class="snippet-block">
+          <div class="snippet-label">
+            Markdown <span class="lang-chip">README.md</span>
+          </div>
+          <div class="snippet-row">
+            <div class="snippet-code" id="mdSnippet"></div>
+            <button class="snippet-copy" onclick="copySnippet('mdSnippet', this)">
+              <svg fill="currentColor" viewBox="0 0 52 52"><path d="M17.4,11.6h17.3c0.9,0,1.6-0.7,1.6-1.6V6.8c0-2.6-2.1-4.8-4.7-4.8h-11c-2.6,0-4.7,2.2-4.7,4.8V10C15.8,10.9,16.5,11.6,17.4,11.6z"/><path d="M43.3,6h-1.6c-0.5,0-0.8,0.3-0.8,0.8V10c0,3.5-2.8,6.4-6.3,6.4H17.4c-3.5,0-6.3-2.9-6.3-6.4V6.8c0-0.5-0.3-0.8-0.8-0.8H8.7C6.1,6,4,8.2,4,10.8v34.4C4,47.8,6.1,50,8.7,50h34.6c2.6,0,4.7-2.2,4.7-4.8V10.8C48,8.2,45.9,6,43.3,6z"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="snippet-block">
+          <div class="snippet-label">
+            HTML <span class="lang-chip">img tag</span>
+          </div>
+          <div class="snippet-row">
+            <div class="snippet-code" id="htmlSnippet"></div>
+            <button class="snippet-copy" onclick="copySnippet('htmlSnippet', this)">
+              <svg fill="currentColor" viewBox="0 0 52 52"><path d="M17.4,11.6h17.3c0.9,0,1.6-0.7,1.6-1.6V6.8c0-2.6-2.1-4.8-4.7-4.8h-11c-2.6,0-4.7,2.2-4.7,4.8V10C15.8,10.9,16.5,11.6,17.4,11.6z"/><path d="M43.3,6h-1.6c-0.5,0-0.8,0.3-0.8,0.8V10c0,3.5-2.8,6.4-6.3,6.4H17.4c-3.5,0-6.3-2.9-6.3-6.4V6.8c0-0.5-0.3-0.8-0.8-0.8H8.7C6.1,6,4,8.2,4,10.8v34.4C4,47.8,6.1,50,8.7,50h34.6c2.6,0,4.7-2.2,4.7-4.8V10.8C48,8.2,45.9,6,43.3,6z"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="snippet-block">
+          <div class="snippet-label">
+            Markdown (linked) <span class="lang-chip">clicks → profile</span>
+          </div>
+          <div class="snippet-row">
+            <div class="snippet-code" id="mdLinkedSnippet"></div>
+            <button class="snippet-copy" onclick="copySnippet('mdLinkedSnippet', this)">
+              <svg fill="currentColor" viewBox="0 0 52 52"><path d="M17.4,11.6h17.3c0.9,0,1.6-0.7,1.6-1.6V6.8c0-2.6-2.1-4.8-4.7-4.8h-11c-2.6,0-4.7,2.2-4.7,4.8V10C15.8,10.9,16.5,11.6,17.4,11.6z"/><path d="M43.3,6h-1.6c-0.5,0-0.8,0.3-0.8,0.8V10c0,3.5-2.8,6.4-6.3,6.4H17.4c-3.5,0-6.3-2.9-6.3-6.4V6.8c0-0.5-0.3-0.8-0.8-0.8H8.7C6.1,6,4,8.2,4,10.8v34.4C4,47.8,6.1,50,8.7,50h34.6c2.6,0,4.7-2.2,4.7-4.8V10.8C48,8.2,45.9,6,43.3,6z"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="info-note">
+      <strong>How it works:</strong> the badge endpoint fetches your Monkeytype public profile and returns a live SVG. WPM shown is your all-time best on 60 seconds (falls back to 15s). Badges are cached for <strong>5 minutes</strong> — so your README always reflects recent stats without hammering the API.
+    </div>
+
+  </div>
+</main>
+
+<script>
+  let debounceTimer = null;
+  let currentUsername = '';
+
+  function onInput() {
+    const raw = document.getElementById('usernameInput').value.trim();
+    const username = raw.replace(/[^a-zA-Z0-9_-]/g, '');
+
+    clearTimeout(debounceTimer);
+
+    if (!username) {
+      resetPreview();
+      return;
+    }
+
+    if (username !== currentUsername) {
+      showLoading(username);
+    }
+
+    debounceTimer = setTimeout(() => {
+      currentUsername = username;
+      updateBadge(username);
+    }, 500);
+  }
+
+  function resetPreview() {
+    currentUsername = '';
+    document.getElementById('badgePreview').innerHTML = '<span class="preview-placeholder">Type your username above to preview</span>';
+    document.getElementById('previewLink').style.display = 'none';
+    document.getElementById('snippetsSection').style.display = 'none';
+  }
+
+  function showLoading(username) {
+    document.getElementById('badgePreview').innerHTML = `
+      <svg class="spin" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8z" fill="#fff" opacity=".2"/>
+        <path d="M7.25.75A.75.75 0 018 0a8 8 0 018 8 .75.75 0 01-1.5 0A6.5 6.5 0 008 1.5a.75.75 0 01-.75-.75z" fill="#fff"/>
+      </svg>`;
+  }
+
+  function updateBadge(username) {
+    const badgeUrl = `https://mtype.cc/badge/${username}`;
+    const profileUrl = `https://mtype.cc/${username}`;
+
+    const preview = document.getElementById('badgePreview');
+    const img = document.createElement('img');
+    img.height = 28;
+    img.style.borderRadius = '6px';
+    img.alt = `mtype badge for ${username}`;
+
+    img.onload = () => {
+      preview.innerHTML = '';
+      preview.appendChild(img);
+      document.getElementById('previewLink').style.display = 'block';
+      document.getElementById('snippetsSection').style.display = 'block';
+    };
+
+    img.onerror = () => {
+      preview.innerHTML = '<span class="preview-placeholder" style="color:rgba(255,100,100,0.5)">Could not load badge — check the username</span>';
+      document.getElementById('previewLink').style.display = 'none';
+      document.getElementById('snippetsSection').style.display = 'none';
+    };
+
+    img.src = `${badgeUrl}?_=${Date.now()}`;
+
+    const urlEl = document.getElementById('badgeUrl');
+    urlEl.textContent = badgeUrl;
+    urlEl.href = badgeUrl;
+
+    document.getElementById('mdSnippet').textContent =
+      `![mtype](${badgeUrl})`;
+
+    document.getElementById('htmlSnippet').textContent =
+      `<img src="${badgeUrl}" alt="mtype" height="28">`;
+
+    document.getElementById('mdLinkedSnippet').textContent =
+      `[![mtype](${badgeUrl})](${profileUrl})`;
+  }
+
+  async function copySnippet(id, btn) {
+    const text = document.getElementById(id).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      const orig = btn.innerHTML;
+      btn.classList.add('copied');
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Copied!`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = orig;
+      }, 1800);
+    } catch(e) {}
+  }
+
+  const urlParam = new URLSearchParams(location.search).get('u');
+  if (urlParam) {
+    document.getElementById('usernameInput').value = urlParam;
+    onInput();
+  }
+</script>
+</body>
+</html>
