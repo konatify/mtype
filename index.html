@@ -147,96 +147,6 @@
     border-color: rgba(255,255,255,0.15);
   }
 
-  .invisible-row {
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    background: var(--bg-light);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    padding: 9px 14px;
-    animation: fadeSlideIn 0.18s ease-out;
-  }
-
-  .invisible-row.visible { display: flex; }
-
-  @keyframes fadeSlideIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .invisible-label-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .invisible-label {
-    font-size: 12px;
-    color: rgba(255,255,255,0.55);
-    letter-spacing: 0.02em;
-  }
-
-  .invisible-hint {
-    font-size: 10px;
-    color: rgba(255,255,255,0.28);
-    letter-spacing: 0.01em;
-  }
-
-  .ghost-icon {
-    width: 14px;
-    height: 14px;
-    opacity: 0.45;
-    flex-shrink: 0;
-    transition: opacity 0.2s;
-  }
-
-  .invisible-row.active .ghost-icon {
-    opacity: 0.85;
-  }
-
-  .toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--bg-lighter);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 11px;
-    color: rgba(255,255,255,0.45);
-    transition: all 0.15s;
-    flex-shrink: 0;
-  }
-
-  .toggle-btn:hover {
-    border-color: rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.7);
-  }
-
-  .toggle-btn.on {
-    background: rgba(226,183,20,0.12);
-    border-color: rgba(226,183,20,0.35);
-    color: var(--accent);
-  }
-
-  .toggle-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-    opacity: 0.5;
-    transition: opacity 0.15s;
-  }
-
-  .toggle-btn.on .toggle-dot {
-    opacity: 1;
-    box-shadow: 0 0 4px var(--accent);
-  }
-
   .input-wrap {
     display: none;
     align-items: center;
@@ -268,6 +178,65 @@
 
   .username-input::placeholder {
     color: rgba(255,255,255,0.25);
+  }
+
+  .ghost-btn {
+    background: transparent;
+    border: none;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .ghost-btn:hover { background: rgba(255,255,255,0.06); }
+
+  .ghost-btn svg {
+    width: 18px;
+    height: 18px;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+  }
+
+  .ghost-btn.on svg {
+    opacity: 1;
+  }
+
+  .ghost-btn.on {
+    background: rgba(226,183,20,0.08);
+  }
+
+  .ghost-btn.on svg path {
+    fill: var(--accent);
+  }
+
+  .ghost-btn::after {
+    content: 'Invisible link';
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    background: #1e1f22;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.75);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s, transform 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .ghost-btn:hover::after {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .confirm-btn {
@@ -482,6 +451,7 @@
   <div class="nav-left">
     <a href="/" onclick="location.reload(); return false;">Home</a>
     <a href="https://mtgoals.cc" target="_blank">Monkeytype Goals</a>
+    <a href="/list">My Links</a>
   </div>
   <div class="nav-right">
     <a href="https://github.com/kiirod/mtype" target="_blank">GitHub</a>
@@ -500,24 +470,6 @@
   <div class="create-area">
     <button class="create-btn" id="createBtn" onclick="showInput()">Create...</button>
 
-    <div class="invisible-row" id="invisibleRow">
-      <div class="invisible-label-wrap">
-        <svg class="ghost-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 3C8.13 3 5 6.13 5 10v9l2-2 2 2 2-2 2 2 2-2 2 2v-9c0-3.87-3.13-7-7-7z" fill="currentColor" opacity="0.9"/>
-          <circle cx="9.5" cy="11" r="1" fill="#313338"/>
-          <circle cx="14.5" cy="11" r="1" fill="#313338"/>
-        </svg>
-        <div>
-          <div class="invisible-label">Invisible Link</div>
-          <div class="invisible-hint">hides username in URL</div>
-        </div>
-      </div>
-      <button class="toggle-btn" id="toggleBtn" onclick="toggleInvisible()">
-        <span class="toggle-dot"></span>
-        <span id="toggleLabel">Off</span>
-      </button>
-    </div>
-
     <div class="input-wrap" id="inputWrap">
       <input
         class="username-input"
@@ -528,7 +480,13 @@
         autocomplete="off"
         spellcheck="false"
         onkeydown="if(event.key==='Enter') openModal()"
+        oninput="onUsernameInput()"
       />
+      <button class="ghost-btn" id="ghostBtn" onclick="toggleInvisible()" title="">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M2 6C2 2.68629 4.68629 0 8 0C11.3137 0 14 2.68629 14 6V16H12L10 14L8 16L6 14L4 16H2V6ZM7 6C7 6.55228 6.55228 7 6 7C5.44772 7 5 6.55228 5 6C5 5.44772 5.44772 5 6 5C6.55228 5 7 5.44772 7 6ZM10 7C10.5523 7 11 6.55228 11 6C11 5.44772 10.5523 5 10 5C9.44772 5 9 5.44772 9 6C9 6.55228 9.44772 7 10 7Z" fill="#ffffff"/>
+        </svg>
+      </button>
       <button class="confirm-btn" onclick="openModal()" title="Confirm">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -565,7 +523,7 @@
     <p class="modal-text">Are you sure this is the correct username? Here's what you've entered;</p>
     <div class="modal-username" id="modalUsername"></div>
     <div class="modal-invisible-note" id="modalInvisibleNote">
-      👻 Invisible mode on — the URL will hide the username using zero-width characters.
+      Invisible mode on — the URL will hide the username using zero-width characters.
     </div>
     <div class="modal-btns">
       <button class="btn-keep" onclick="closeModal()">Keep Editing</button>
@@ -576,6 +534,7 @@
 
 <script>
   let currentUrl = '';
+  let lastCreatedUsername = '';
   let invisibleMode = false;
 
   function encodeZWS(str) {
@@ -589,18 +548,12 @@
 
   function toggleInvisible() {
     invisibleMode = !invisibleMode;
-    const btn = document.getElementById('toggleBtn');
-    const label = document.getElementById('toggleLabel');
-    const row = document.getElementById('invisibleRow');
-
+    const btn = document.getElementById('ghostBtn');
     btn.classList.toggle('on', invisibleMode);
-    label.textContent = invisibleMode ? 'On' : 'Off';
-    row.classList.toggle('active', invisibleMode);
   }
 
   function showInput() {
     document.getElementById('createBtn').style.display = 'none';
-    document.getElementById('invisibleRow').classList.add('visible');
     document.getElementById('inputWrap').classList.add('visible');
     document.getElementById('usernameInput').focus();
   }
@@ -621,6 +574,28 @@
   document.getElementById('overlay').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
+
+  function onUsernameInput() {
+    const currentVal = document.getElementById('usernameInput').value.trim();
+    if (lastCreatedUsername && currentVal !== lastCreatedUsername) {
+      const statusArea = document.getElementById('statusArea');
+      statusArea.classList.remove('visible');
+      document.getElementById('copyBtn').classList.remove('visible');
+      document.getElementById('zwsBadge').classList.remove('visible');
+      currentUrl = '';
+    }
+  }
+
+  function saveLink(username, url, invisible) {
+    try {
+      const stored = JSON.parse(localStorage.getItem('mtype_links') || '[]');
+      const exists = stored.some(l => l.username === username && l.invisible === invisible);
+      if (!exists) {
+        stored.unshift({ username, url, invisible, createdAt: Date.now() });
+        localStorage.setItem('mtype_links', JSON.stringify(stored));
+      }
+    } catch(e) {}
+  }
 
   async function doCreate() {
     closeModal();
@@ -663,14 +638,17 @@
         const zwsSlug = encodeZWS(username);
         currentUrl = `mtype.cc/${zwsSlug}`;
         const fullUrl = `https://mtype.cc/${zwsSlug}`;
-        statusText.innerHTML = `Success! The link looks empty 👻 — <a href="${fullUrl}" target="_blank">click to verify</a>.`;
+        statusText.innerHTML = `Success! The link looks empty — <a href="${fullUrl}" target="_blank">click to verify</a>.`;
         zwsBadge.classList.add('visible');
+        saveLink(username, `mtype.cc/`, true);
       } else {
         currentUrl = `mtype.cc/${username}`;
         const fullUrl = `https://${currentUrl}`;
         statusText.innerHTML = `Success! Check it out <a href="${fullUrl}" target="_blank">here</a>.`;
+        saveLink(username, `mtype.cc/${username}`, false);
       }
 
+      lastCreatedUsername = username;
       copyBtn.classList.add('visible');
 
     } catch(e) {
@@ -705,8 +683,7 @@
         </svg>
         Copy to clipboard
         ${wasZws ? '<span class="zws-badge visible">invisible</span>' : ''}`;
-    } catch(e) {
-    }
+    } catch(e) {}
   }
 
   function sleep(ms) {
