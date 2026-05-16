@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPM Age — mtype</title>
+<link rel="icon" type="image/png" href="/images/mtype.png">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #313338;
+    --bg-light: #3a3d42;
+    --bg-lighter: #43464c;
+    --accent: #e2b714;
+    --white: #ffffff;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Roboto Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: rgba(49,51,56,0.95);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-left { display: flex; gap: 0.25rem; }
+  .nav-right { display: flex; gap: 0.25rem; }
+
+  nav a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  nav a:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+  nav a.active { color: var(--accent); }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    gap: 0.4rem;
+    text-align: center;
+  }
+
+  .title-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+
+  .title {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    display: inline-block;
+  }
+
+  .title-underline {
+    display: block;
+    height: 3px;
+    margin-top: 6px;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) 40%, transparent 100%);
+    border-radius: 2px;
+  }
+
+  .page-subtitle {
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    max-width: 340px;
+    line-height: 1.7;
+  }
+
+  .input-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .wpm-input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--bg-light);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .wpm-input-wrap:focus-within {
+    border-color: rgba(226,183,20,0.5);
+  }
+
+  .wpm-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    padding: 12px 16px;
+    caret-color: var(--accent);
+    text-align: center;
+    letter-spacing: 0.04em;
+    width: 100%;
+  }
+
+  .wpm-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; font-size: 16px; }
+
+  .wpm-input::-webkit-outer-spin-button,
+  .wpm-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .wpm-input[type=number] { -moz-appearance: textfield; }
+
+  .wpm-suffix {
+    padding: 0 16px 0 0;
+    font-size: 13px;
+    color: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+  }
+
+  .calc-btn {
+    background: var(--accent);
+    border: none;
+    color: #1a1a1a;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.02em;
+    width: 100%;
+  }
+
+  .calc-btn:hover { background: #f0c020; }
+  .calc-btn:active { transform: scale(0.98); }
+  .calc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .result-card {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 2rem;
+    background: var(--bg-light);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: popIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .result-card.visible { display: flex; }
+
+  .result-top {
+    width: 100%;
+    padding: 1.75rem 1.75rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .result-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .result-age {
+    font-size: clamp(3rem, 12vw, 5rem);
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .result-age-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .result-bottom {
+    width: 100%;
+    padding: 1.25rem 1.75rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .roast-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.75;
+    text-align: center;
+  }
+
+  .roast-text em {
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+
+  .stat-chip {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .stat-chip-val {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .stat-chip-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0 1.75rem 1.5rem;
+  }
+
+  .action-btn {
+    flex: 1;
+    background: var(--bg-lighter);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    padding: 9px 0;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover {
+    border-color: rgba(255,255,255,0.15);
+    color: var(--white);
+    background: rgba(255,255,255,0.07);
+  }
+
+  .action-btn.share-btn {
+    background: rgba(226,183,20,0.08);
+    border-color: rgba(226,183,20,0.2);
+    color: var(--accent);
+  }
+
+  .action-btn.share-btn:hover {
+    background: rgba(226,183,20,0.14);
+    border-color: rgba(226,183,20,0.35);
+  }
+
+  .percentile-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 0.25rem;
+  }
+
+  .percentile-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .percentile-label span:last-child {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .bar-track {
+    width: 100%;
+    height: 5px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .source-note {
+    margin-top: 1.5rem;
+    font-size: 10px;
+    color: rgba(255,255,255,0.18);
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.7;
+  }
+
+  .source-note a {
+    color: rgba(255,255,255,0.3);
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/">Home</a>
+    <a href="https://mtgoals.cc" target="_blank">Monkeytype Goals</a>
+    <a href="/list">My Links</a>
+  </div>
+  <div class="nav-right">
+    <a href="https://github.com/kiirod/mtype" target="_blank">GitHub</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="title-wrap">
+      <span class="title">wpm age</span>
+      <span class="title-underline"></span>
+    </div>
+    <p class="page-subtitle">Find out how old your fingers are. Based on real typing speed research. Results may sting.</p>
+  </div>
+
+  <div class="input-area">
+    <div class="wpm-input-wrap">
+      <input
+        class="wpm-input"
+        id="wpmInput"
+        type="number"
+        min="1"
+        max="300"
+        placeholder="your WPM"
+        onkeydown="if(event.key==='Enter') calculate()"
+        oninput="onWpmInput()"
+      />
+      <span class="wpm-suffix">wpm</span>
+    </div>
+    <button class="calc-btn" id="calcBtn" onclick="calculate()" disabled>Calculate my age</button>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-top">
+      <div class="result-label">your typing age is</div>
+      <div class="result-age" id="resultAge">—</div>
+      <div class="result-age-label">years old</div>
+    </div>
+
+    <div class="result-bottom">
+      <div class="roast-text" id="roastText"></div>
+
+      <div class="stats-row">
+        <div class="stat-chip">
+          <div class="stat-chip-val" id="statWpm">—</div>
+          <div class="stat-chip-label">your wpm</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-val" id="statAvg">—</div>
+          <div class="stat-chip-label">avg for age</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-val" id="statDiff">—</div>
+          <div class="stat-chip-label">difference</div>
+        </div>
+      </div>
+
+      <div class="percentile-wrap">
+        <div class="percentile-label">
+          <span>slower than you</span>
+          <span id="percentileText">—</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" id="barFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <button class="action-btn" onclick="reset()">Try again</button>
+      <button class="action-btn share-btn" onclick="shareResult()">Copy & share</button>
+    </div>
+  </div>
+
+  <p class="source-note">
+    Age brackets based on data from <a href="https://typing.io/blog/touch-typing-speed-by-age" target="_blank">typing.io</a> and the
+    <a href="https://pubmed.ncbi.nlm.nih.gov/30382792/" target="_blank">2019 Cambridge typing study</a>.
+    Average WPM for the general population: ~40 wpm.
+  </p>
+</main>
+
+<script>
+  const AGE_BRACKETS = [
+    { min: 6,  max: 10, avg: 15,  label: "6–10"  },
+    { min: 11, max: 13, avg: 27,  label: "11–13" },
+    { min: 14, max: 17, avg: 38,  label: "14–17" },
+    { min: 18, max: 24, avg: 52,  label: "18–24" },
+    { min: 25, max: 34, avg: 55,  label: "25–34" },
+    { min: 35, max: 44, avg: 50,  label: "35–44" },
+    { min: 45, max: 54, avg: 44,  label: "45–54" },
+    { min: 55, max: 64, avg: 36,  label: "55–64" },
+    { min: 65, max: 99, avg: 27,  label: "65+"   },
+  ];
+
+  const ROASTS = {
+    terrible: [
+      [`Your fingers are basically retired.`, `At <em>{wpm} wpm</em>, you type slower than a golden retriever would if it had thumbs. Hunt-and-peck isn't a technique, it's a cry for help.`],
+      [`Congratulations, you've achieved elderly.`, `<em>{wpm} wpm</em>? Your grandma texts faster than you. She uses one finger. She doesn't look at the keyboard. She's also 84.`],
+      [`Please consider dictation software.`, `Scientists measured your typing speed and briefly confused it with geological drift. <em>{wpm} wpm</em> is not a speed, it's a vibe.`],
+    ],
+    below: [
+      [`You have the fingers of a middle schooler.`, `<em>{wpm} wpm</em> puts you solidly in "still figuring out the keyboard" territory. The good news is there's nowhere to go but up. Mostly.`],
+      [`Technically typing. Barely.`, `At <em>{wpm} wpm</em>, you'd lose a typing race to a golden retriever. We don't know how the retriever does it either.`],
+      [`Your keyboard is embarrassed for you.`, `<em>{wpm} wpm</em>. You're not slow, you're just... deliberate. Extremely, painfully deliberate. Like a sloth with commitment issues.`],
+    ],
+    average: [
+      [`Aggressively normal. Congrats?`, `<em>{wpm} wpm</em> is exactly what "average adult" looks like on paper. You are statistically unremarkable, which is an achievement in its own quiet way.`],
+      [`The Switzerland of typists.`, `Not fast, not slow, not interesting. At <em>{wpm} wpm</em> you are the beige wall of the typing world. Neutral. Inoffensive. Forgettable.`],
+      [`You type like someone who learned on their own and never questioned it.`, `<em>{wpm} wpm</em>. Classic. You probably rest your wrists on the desk and have never once thought about home row position.`],
+    ],
+    good: [
+      [`Okay actually not bad.`, `<em>{wpm} wpm</em> puts you ahead of most people who touch a keyboard. You've clearly spent too much time online, and it shows. Positively.`],
+      [`Your coworkers think you're fast. You know the truth.`, `At <em>{wpm} wpm</em> you're faster than most humans but you've seen the leaderboard. You know what's out there. It haunts you.`],
+      [`Statistically impressive. Personally, mid.`, `<em>{wpm} wpm</em>. Fast enough to feel smug, slow enough to get absolutely cooked on Monkeytype. You exist in the painful middle.`],
+    ],
+    fast: [
+      [`You have a problem.`, `<em>{wpm} wpm</em>. Normal people don't type this fast. You've explained touch typing to at least three colleagues unprompted. You own a mechanical keyboard and have opinions about switches.`],
+      [`Your fingers have clearly seen things.`, `At <em>{wpm} wpm</em>, you've transcended casual typing. You are the person other people watch type and feel vaguely uncomfortable around.`],
+      [`Certified keyboard person.`, `<em>{wpm} wpm</em>. You've gaslit yourself into thinking this is normal. It is not. You have a Monkeytype account. Multiple. You track your PBs in a spreadsheet.`],
+    ],
+    veryfast: [
+      [`At this point it's a personality trait.`, `<em>{wpm} wpm</em>. You've told someone your WPM in a conversation that had nothing to do with typing. Recently. They smiled politely.`],
+      [`The keyboard is scared of you.`, `<em>{wpm} wpm</em>. You've worn the letters off at least one keyboard. You use custom keycaps. You have a "main" board. This is your life now.`],
+      [`Typing is your love language.`, `At <em>{wpm} wpm</em>, you no longer type to communicate. You type to feel. Every keystroke is intentional. You've cried during a PB attempt. It's fine.`],
+    ],
+    inhuman: [
+      [`Please be normal.`, `<em>{wpm} wpm</em>. You are not okay. You have not been okay for a long time. The keyboard is just an output device for the thoughts that arrive faster than most people breathe.`],
+      [`This is genuinely concerning.`, `At <em>{wpm} wpm</em>, your fingers move faster than your coworkers think. Scientists would like to study you. Please contact a physician. Also, congrats.`],
+      [`You have ascended. There is no age for this.`, `<em>{wpm} wpm</em>. You exist outside the normal distribution. The research doesn't cover you. The chart doesn't go that high. You are the chart.`],
+    ],
+  };
+
+  function findAge(wpm) {
+    let closest = AGE_BRACKETS[0];
+    let minDiff = Infinity;
+
+    for (const bracket of AGE_BRACKETS) {
+      const diff = Math.abs(bracket.avg - wpm);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = bracket;
+      }
+    }
+    return closest;
+  }
+
+  function getRoastKey(wpm) {
+    if (wpm < 20)  return 'terrible';
+    if (wpm < 40)  return 'below';
+    if (wpm < 60)  return 'average';
+    if (wpm < 90)  return 'good';
+    if (wpm < 120) return 'fast';
+    if (wpm < 160) return 'veryfast';
+    return 'inhuman';
+  }
+
+  function getPercentile(wpm) {
+    if (wpm <= 20)  return Math.round((wpm / 20) * 5);
+    if (wpm <= 40)  return Math.round(5 + ((wpm - 20) / 20) * 30);
+    if (wpm <= 60)  return Math.round(35 + ((wpm - 40) / 20) * 35);
+    if (wpm <= 90)  return Math.round(70 + ((wpm - 60) / 30) * 20);
+    if (wpm <= 120) return Math.round(90 + ((wpm - 90) / 30) * 8);
+    return Math.min(99, Math.round(98 + ((wpm - 120) / 80) * 1));
+  }
+
+  let lastWpm = null;
+
+  function onWpmInput() {
+    const val = parseInt(document.getElementById('wpmInput').value);
+    document.getElementById('calcBtn').disabled = !(val > 0 && val <= 300);
+  }
+
+  function calculate() {
+    const wpm = parseInt(document.getElementById('wpmInput').value);
+    if (!wpm || wpm <= 0 || wpm > 300) return;
+    lastWpm = wpm;
+
+    const bracket = findAge(wpm);
+    const roastKey = getRoastKey(wpm);
+    const roastOptions = ROASTS[roastKey];
+    const roast = roastOptions[Math.floor(Math.random() * roastOptions.length)];
+    const percentile = getPercentile(wpm);
+    const diff = wpm - bracket.avg;
+    const diffStr = diff >= 0 ? `+${diff}` : `${diff}`;
+
+    let displayAge;
+    if (wpm < 15) {
+      displayAge = '💀';
+    } else if (wpm >= 160) {
+      displayAge = '∞';
+    } else {
+      displayAge = Math.round((bracket.min + bracket.max) / 2);
+    }
+
+    document.getElementById('resultAge').textContent = displayAge;
+    document.getElementById('roastText').innerHTML =
+      `<strong>${roast[0]}</strong><br><br>` + roast[1].replace('{wpm}', wpm);
+    document.getElementById('statWpm').textContent = wpm;
+    document.getElementById('statAvg').textContent = bracket.avg;
+    document.getElementById('statDiff').textContent = diffStr;
+    document.getElementById('percentileText').textContent = `top ${100 - percentile}%`;
+
+    const card = document.getElementById('resultCard');
+    card.classList.remove('visible');
+    void card.offsetWidth;
+    card.classList.add('visible');
+
+    setTimeout(() => {
+      document.getElementById('barFill').style.width = percentile + '%';
+    }, 50);
+  }
+
+  function reset() {
+    document.getElementById('resultCard').classList.remove('visible');
+    document.getElementById('barFill').style.width = '0%';
+    document.getElementById('wpmInput').value = '';
+    document.getElementById('calcBtn').disabled = true;
+    document.getElementById('wpmInput').focus();
+  }
+
+  async function shareResult() {
+    if (!lastWpm) return;
+    const bracket = findAge(lastWpm);
+    const age = (lastWpm < 15) ? 'dead' : (lastWpm >= 160) ? 'literally infinite' : Math.round((bracket.min + bracket.max) / 2);
+    const text = `My WPM is ${lastWpm}, which gives me a typing age of ${age}. Find out yours at mtype.cc/wpm-age`;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.querySelector('.share-btn');
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 1800);
+    } catch(e) {}
+  }
+
+  document.getElementById('wpmInput').focus();
+</script>
+</body>
+</html>
